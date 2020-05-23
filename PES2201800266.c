@@ -6,7 +6,7 @@ NAME: Akash Murthy
 SRN: PES2201800266
 
 Intal - Arbitrary Length Positive Integers
-Last Updated: 1155 HRS 23 May 2020 
+Last Updated: 2155 HRS 23 May 2020 
 Submission #2
 */
 //This is my implementation of intal
