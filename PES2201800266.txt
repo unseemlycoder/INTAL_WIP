@@ -1,0 +1,85 @@
+DAA MINIPROJECT - UE18CS251
+A C library for integers of arbitrary length
+
+NAME: Akash Murthy
+SRN: PES2201800266
+
+Intal - Arbitrary Length Positive Integers
+Last Updated: 1927 HRS 23 May 2020
+
+
+Intro
+INTAL is a whole number (non-negative integer) with discretionary length saved as character arrays, to manage enormous numbers which can't be saved in primitive data types. 
+
+The technique involved is to store numbers in character clusters (arrays) of Big endian arrangement.
+For example, the MSB is at the start of the string i.e, 0th position.
+
+Common ranges of datatypes that are generally used are:
+1)short and int: 				-32,767 to 32,767
+2)unsigned short int and unsigned int: 		0 to 65,535
+3)long int: 					-2,147,483,647 to 2,147,483,647
+4)unsigned long int: 				0 to 4,294,967,295
+5)long long int: 				-9,223,372,036,854,775,807 to 9,223,372,036,854,775,807
+6)unsigned long long int: 			0 to 18,446,744,073,709,551,615.
+
+Therefore, numbers that are greater than about ~30 digits in length, can't be saved...all things considered, this is where INTAL can be utilized. 
+
+INTAL has been intended for use in conveyed frameworks, distributed systems, AWS and so forth. [In actuality, we would not be utilizing small numbers, and be managing extremely enormous values in science / Databases] 
+Clearly an Amazon Database or Google Database wouldn't manage small numbers given its use. 
+INTAL can likewise be utilized in security. For instance hashing, and so forth. 
+TLDR; Intal library utilizes rationale to perform tasks or comparisions with arbitrary length integers stored as a string.
+
+
+
+Functions explained in brief:
+intal_add:  Two intal numbers are taken, with addition of each digit from left to right, and carry over to the next place value whenever the sum of two digits results in a number greater than 10
+
+intal_compare: Assuming that there are no preceding zeroes in both the intal numbers, the bits of each number are compared from left to right, and in case of any mismatch, the two numbers are deemed unequal. We check which intal is the greater intal. If all the bits match, the two numbers are deemed equal.
+
+intal_diff: Subtraction of two intals. The larger number is always taken as the minuend. Digits are subtracted from right to left. If the minuend digit is smaller than the subtrahend digit, 10 is added to the minuend digit, and 1 is subtracted from the minuend digit in the next place value.
+
+intal_multiply: Multiplication of two intals. Each digit of the second number is mulitiplied to the entire first number, right to left. If the second number has n digits, every subsequent partial product is left shifted i times, where i ranges from 0 to (n-1). All these partial products are added in the end to form the final result. Optionally, Karatsuba Algorithm can be implemented
+
+intal_mod: Using long division method to compute where the quotient isn't stored and the resulting remainder is the one that is cached from each computation.
+
+intal_pow: To calculate the power of a number using the iterative method.
+
+intal_gcd: Uses iterative Euclid's algorithm to calculate GCD of two numbers
+
+intal_fibonacci: Generates fibonacci sequence. Traversing from 0&1, we add every previous pair of numbers to create the series with intal_add.
+
+intal_factorial: Calculates factorial of given intal. Traversing from 1, we multiply with a temp string that stores intermediate values, having a step buffer incremented with value 1 using intal_multiply.
+
+intal_bincoeff: To find the binomial coefficient we can use a Recursive Algo:
+C(n, k)=C(n-1, k-1)+C(n-1, k)
+C(n, 0)=C(n, n)=1
+C(n,1)=n
+C(n+1, x) depends on C(n, y) only, so O(n)is the extra space required.
+With this, the value of C(n, k) can be recursively calculated.
+
+intal_max: Using linear traversal, we compare the current number in the linear traversal with the current maximum value. The max value at the end of the linear traversal is the absolute maximum.
+
+intal_min: Works similar to intal_max with a small change, it uses intal_compare to compare the current number (in the linear traversal) with the current lowest value. The lowest value at the end of the traversal is the absolute minimum.
+
+intal_search: Compares the key with each element of array and uses intal_compare to find the position of the key in array.
+
+intal_binsearch: Compares the key with each element of array using the divide and conquer binary search technique. The function intal_compare is used to find the position of the key in array.
+
+intal_sort: This function uses QuickSort algorithm to sort the array.
+
+coin_row_problem: Solution implemented with Dynamic Programming, where problem is solved in O(n) time and O(1) extra space even though the DP table could be of O(n) size.
+Recursive Algo:
+crp(n)=max(crp(n - 1), coin[n] + crp(n - 2));
+crp(1)=coin[1]
+crp(0)=0
+
+
+Advantages
+1)Can be utilized in high accuracy scientific calculation. 
+2)INTAL with adjustment can be utilized to store BASE 128 numbers. 
+3)INTAL can be utilized to parse enormous, non ending and irrational numbers like Pi, Golden Ratio, Euler's number, Square Root of 2, etc. 
+
+FutureScope
+1)Use parallel design to increase efficiency.
+2)Implementation of INTAL to include negative numbers.
+3)Usage of GPUs to process for faster computations (as modern graphics processors are more powerful to perform rapid mathematical calculations, given their high core count when compared to CPUs)
