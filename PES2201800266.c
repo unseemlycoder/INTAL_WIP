@@ -6,10 +6,11 @@ NAME: Akash Murthy
 SRN: PES2201800266
 
 Intal - Arbitrary Length Positive Integers
-Last Updated: 1841 HRS 23 May 2020 
+Last Updated: 1155 HRS 23 May 2020 
+Submission #2
 */
-//This is my implementation of intal 
-//Immense care has been taken to cite author if a particular snippet was lifted.
+//This is my implementation of intal
+//Immense care has been taken to cite author if a particular snippet was lifted. i.e. BinarySearch, QuickSort
 //Karatsuba is work in progress
 //Relevant debugging lines were removed
 
@@ -27,7 +28,30 @@ char convert_to_char(int in)
   return (char)(in + 48);
 }
 
-//Add each character starting from LSB using ‘0’ or 48 as reference as it is stored in characters and not numbers. 
+static char *remove_leading_zeros(const char *arr)
+{
+  int in = 0;
+  while (arr[in] == '0')
+    in++;
+  int len = strlen(arr);
+  int ans_len = len - in + 1;
+  if (len == in)
+  {
+    char *ans = malloc(sizeof(char) * 2);
+    ans[0] = '0';
+    ans[1] = '\0';
+    return ans;
+  }
+  char *answer = malloc(sizeof(char) * ans_len);
+  answer[--ans_len] = '\0';
+  for (int z = in; z < len; z++)
+  {
+    answer[z - in] = arr[z];
+  }
+  return answer;
+}
+
+//Add each character starting from LSB using ‘0’ or 48 as reference as it is stored in characters and not numbers.
 //The MSB of the resultant sum is carry and LSB is what is stored in that particular position of the array.
 char *intal_add(char *intal1, char *intal2)
 {
@@ -93,8 +117,8 @@ char *intal_add(char *intal1, char *intal2)
   return answer;
 }
 
-//This functions is used to compare the greater of the given two intals , here we first compare the lengths of both the intals , and return +1, 0 or -1  
-//Accordingly, and if the lengths are equal, then we check linearly for each char , starting from LSB. 
+//This functions is used to compare the greater of the given two intals , here we first compare the lengths of both the intals , and return +1, 0 or -1
+//Accordingly, and if the lengths are equal, then we check linearly for each char , starting from LSB.
 int intal_compare(char *intal1, char *intal2)
 {
   int m = strlen(intal1);
@@ -188,61 +212,43 @@ char *intal_diff(char *intal1, char *intal2)
 //Traverse from LSB to MSB of intal2 , multiply char to char and add carry to the next one instantly.
 char *intal_multiply(char *intal1, char *intal2)
 {
-  if (strcmp(intal1, "0") == 0 || strcmp(intal2, "0") == 0)
+  char *num1 = remove_leading_zeros(intal1);
+  char *num2 = remove_leading_zeros(intal2);
+  int m = strlen(num1);
+  int n = strlen(num2);
+  int rlen = m + n + 1;
+  char *answer = malloc(sizeof(char) * rlen);
+  answer[rlen - 1] = '\0';
+  for (int k = 0; k < rlen - 1; k++)
+    answer[k] = '0';
+  int i_n1 = 0;
+  int i_n2 = 0;
+  int i, j, carry, t1, t2, sum;
+  for (i = m - 1; i >= 0; i--)
   {
-    char *answer = (char *)malloc(2 * sizeof(char));
-    answer[0] = '0';
-    answer[1] = '\0';
-    return answer;
-  }
-
-  int z, j, rd, c = 0;
-  int m = strlen(intal1);
-  int n = strlen(intal2);
-
-  int l = m + n;
-  char *answer = (char *)malloc((l + 1) * sizeof(char));
-
-  for (z = 0; z < l; ++z)
-    answer[z] = '0';
-
-  for (z = 0; z < m; ++z)
-  {
-    c = 0;
-    for (j = 0; j < n; ++j)
+    carry = 0;
+    t1 = num1[i] - 48;
+    i_n2 = 0;
+    for (j = n - 1; j >= 0; j--)
     {
-      int d1 = convert_to_int(intal1[m - 1 - z]);
-      int d2 = convert_to_int(intal2[n - 1 - j]);
-      int d3 = convert_to_int(answer[l - 1 - z - j]);
-
-      rd = (d1 * d2) + c + d3;
-      c = rd / 10;
-      rd = rd % 10;
-
-      answer[l - 1 - z - j] = convert_to_char(rd);
+      t2 = num2[j] - 48;
+      sum = t1 * t2 + answer[i_n1 + i_n2] - 48 + carry;
+      carry = sum / 10;
+      answer[i_n1 + i_n2] = sum % 10 + 48;
+      i_n2++;
     }
-
-    for (j = n + z; j < n + m; ++j)
-    {
-      int d3 = convert_to_int(answer[l - 1 - j]);
-
-      rd = c + d3;
-      c = rd / 10;
-      rd = rd % 10;
-      answer[l - 1 - j] = convert_to_char(rd);
-    }
+    if (carry > 0)
+      answer[i_n1 + i_n2] += carry;
+    i_n1++;
   }
-
-  answer[l] = '\0';
-  if (answer[0] == '0')
-  {
-    for (z = 0; z <= l; ++z)
-      answer[z] = answer[z + 1];
-
-    answer = realloc(answer, l * sizeof(char));
-  }
-
-  return answer;
+  char *reverse_result = malloc(sizeof(char) * rlen);
+  reverse_result[rlen - 1] = '\0';
+  for (i = 0; i < rlen - 1; i++)
+    reverse_result[i] = answer[rlen - 2 - i];
+  free(answer);
+  char *holdn = remove_leading_zeros(reverse_result);
+  free(reverse_result);
+  return holdn;
 }
 /*
 //Karatsuba Multiplication
@@ -371,23 +377,34 @@ char *intal_pow(char *intal1, unsigned int n)
 {
   if (n == 0)
   {
-    char *answer = (char *)malloc(2 * sizeof(char));
-    answer[0] = '1';
-    answer[1] = '\0';
-    return answer;
+    char *t;
+    t = malloc(sizeof(char) * 2);
+    t[0] = '1';
+    t[1] = '\0';
+    return t;
   }
 
-  char *answer = (char *)malloc((strlen(intal1) + 1) * sizeof(char));
-  strcpy(answer, intal1);
+  char *holdn = (char *)malloc((strlen(intal1) + 1) * sizeof(char));
+  strcpy(holdn, intal1);
 
-  for (int z = 1; z < n; ++z)
+  for (int z = 1; z < n / 2; z++)
   {
-    char *arg = answer;
-    answer = intal_multiply(answer, intal1);
-    free(arg);
+    char *arr = holdn;
+    holdn = intal_multiply(holdn, intal1);
+    free(arr);
+  }
+  if (n % 2)
+  {
+    char *r = (char *)malloc((strlen(intal1) + 1) * sizeof(char));
+    r = intal_multiply(holdn, intal1);
+    holdn = intal_multiply(r, holdn);
+  }
+  else
+  {
+    holdn = intal_multiply(holdn, holdn);
   }
 
-  return answer;
+  return holdn;
 }
 
 //This function uses the iterative Euclid's algorithm to calculate GCD of two numbers
@@ -480,38 +497,42 @@ char *intal_factorial(unsigned int n)
 //Use DP to calculate the binomial coefficient of (n,k) using bottom up approach.
 char *intal_bincoeff(unsigned int n, unsigned int k)
 {
-  char **c = (char **)malloc((k + 1) * sizeof(char *));
-  for (int z = 0; z < k + 1; ++z)
-  {
-    c[z] = (char *)malloc(2 * sizeof(char));
-    c[z][0] = '0';
-    c[z][1] = '\0';
-  }
-
-  c[0][0] = '1';
-
-  for (int z = 1; z < n + 1; ++z)
-  {
-    int j = (z > k) ? k : z;
-    while (j > 0)
+  if(k==0 || n==k)
     {
-      char *tmp = c[j];
-      c[j] = intal_add(c[j], c[j - 1]);
-      free(tmp);
-      --j;
-    }
-  }
+          char* place = malloc(sizeof(char) * 2);
+          place[0] = '1';
+          place[1] = '\0';
+          return place;
+      }
+      if(k>= n-k)
+      {
+          k = n-k;
+      }
+  
+      char **val = (char**) malloc((k+1) * sizeof(char*));
+      for(int y = 0; y <= k; y++)
+      {
+          val[y] = (char*) malloc(1001 * sizeof(char));
+          strcpy(val[y], "1");
+      }
+      
+      for(int z = 1; z <= (n-k); z++)
+      {
+          for(int i = 1; i <= k; i++)
+          {
+              char* temp = intal_add(val[i], val[i-1]);
+              free(val[i]);
+              val[i] = temp;
+          }
+      }
+      char *holdn = remove_leading_zeros(val[k]);
+      for(int i = 0; i <= k; i++)
+      {
+          free(val[i]);
+      }
+      free(val);
 
-  char *answer = (char *)malloc((strlen(c[k]) + 1) * sizeof(char));
-  strcpy(answer, c[k]);
-
-  for (int z = 0; z < k + 1; ++z)
-  {
-    free(c[z]);
-  }
-  free(c);
-
-  return answer;
+      return holdn;
 }
 //Linear traversing, finding the max intal in a given array.
 int intal_max(char **arr, int n)
@@ -556,7 +577,7 @@ int intal_search(char **arr, int n, const char *key)
 }
 
 // The following binary_search code is lifted, without permission, from programiz.com
-// Changes were made to fit this code snippet in my implementation of intal 
+// Changes were made to fit this code snippet in my implementation of intal
 //Does a Binary search to find the given key intal in a given array.
 int intal_binsearch(char **arr, int n, const char *key)
 {
@@ -585,7 +606,7 @@ int intal_binsearch(char **arr, int n, const char *key)
 }
 
 // The following partition & quicksort code is lifted, without permission, from hackr.io
-// Changes were made to fit this code snippet in my implementation of intal 
+// Changes were made to fit this code snippet in my implementation of intal
 //Partition index function for quicksort
 int partition(char **arr, int l, int h)
 {
@@ -630,7 +651,7 @@ void intal_sort(char **arr, int n)
 //Uses a O(n) DP table to implement coin row problem
 char *coin_row_problem(char **arr, int n)
 {
-  char **handle  = (char **)malloc((n + 1) * sizeof(char *));
+  char **handle = (char **)malloc((n + 1) * sizeof(char *));
   handle[0] = (char *)malloc(2 * sizeof(char));
   handle[0][0] = '0';
   handle[0][1] = '\0';
